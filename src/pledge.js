@@ -23,19 +23,20 @@ function $Promise(executor) {
 			successCb: successCb,
 			errorCb: errorCb
 		});
-		this._callHandlers();
+		this._callHandlers(this._value);
 	};
 
 	this._internalResolve = function(value) {
 		if (!this._value && this._state === 'pending') {
 			this._value = value;
-			this._state = 'fulfilled';
+            this._state = 'fulfilled';
+            this._callHandlers(this._value);
 		}
 	};
 	this._internalReject = function(value) {
 		if (!this._value && this._state === 'pending') {
 			this._value = value;
-			this._state = 'rejected';
+            this._state = 'rejected';
 		}
 	};
 
@@ -49,14 +50,14 @@ function $Promise(executor) {
 	);
 }
 
-$Promise.prototype._callHandlers = function() {
+$Promise.prototype._callHandlers = function(value) {
 	this._handlerGroups.forEach((obj, index) => {
 		if (obj) {
 			if (this._state === 'fulfilled') {
-				obj.successCb(this._value);
+				obj.successCb(value);
 				this._handlerGroups.splice(index, 1);
 			} else if (this._state === 'rejected') {
-				obj.errorCb(this._value);
+				obj.errorCb(value);
 				this._handlerGroups.splice(index, 1);
 			}
 		}

@@ -124,7 +124,7 @@ Chapter 2: Attaching and Calling Promise Event Handlers
 				expect(addToFoo).toHaveBeenCalledWith(25);
 			});
 
-			xit('calls each success handler when added', function() {
+			it('calls each success handler when added', function() {
 				promiseForNum.then(setFoo10);
 				expect(foo).toBe(10);
 				promiseForNum.then(addToFoo);
@@ -136,13 +136,13 @@ Chapter 2: Attaching and Calling Promise Event Handlers
 		// But what if events occur in opposite order?
 
 		describe('that already has a success handler', function() {
-			xit('calls that handler when fulfilled', function() {
+			it('calls that handler when fulfilled', function() {
 				promiseForNum.then(setFoo10);
 				promiseForNum._internalResolve();
 				expect(setFoo10).toHaveBeenCalled();
 			});
 
-			xit('calls all its success handlers in order one time when fulfilled', function() {
+			it('calls all its success handlers in order one time when fulfilled', function() {
 				promiseForNum.then(setFoo10);
 				promiseForNum.then(addToFoo);
 				promiseForNum._internalResolve(25);
