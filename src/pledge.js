@@ -4,33 +4,37 @@ Promises Workshop: build the pledge.js ES6-style promise library
 ----------------------------------------------------------------*/
 // YOUR CODE HERE:
 
-function $Promise (executor) {
-//this context is promise
-    this._state = 'pending';
-    this._value;
+function $Promise(executor) {
+	//this context is promise
+	this._state = 'pending';
+	this._value;
 
-    this._internalResolve = function(value){
-        if (!this._value && this._state === 'pending'){
-            this._value = value;
-            this._state = 'fulfilled';
-        }
-    };
-    this._internalReject = function(value){
-        if (!this._value && this._state === 'pending'){
-            this._value = value;
-            this._state = 'rejected';
-        }
-    };
+	this._internalResolve = function(value) {
+		if (!this._value && this._state === 'pending') {
+			this._value = value;
+			this._state = 'fulfilled';
+		}
+	};
+	this._internalReject = function(value) {
+		if (!this._value && this._state === 'pending') {
+			this._value = value;
+			this._state = 'rejected';
+		}
+	};
 
-    if (typeof executor !== 'function'){
-        throw new TypeError('executor or function is not defined');
-    }
+	if (typeof executor !== 'function') {
+		throw new TypeError('executor or function is not defined');
+	}
+
+	executor(
+		resolve => {
+			this._internalResolve(resolve);
+		},
+		reject => {
+			this._internalReject(reject);
+		}
+	);
 }
-
-
-
-
-
 
 /*-------------------------------------------------------
 The spec was designed to work with Test'Em, so we don't
