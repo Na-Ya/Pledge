@@ -5,11 +5,27 @@ Promises Workshop: build the pledge.js ES6-style promise library
 // YOUR CODE HERE:
 
 function $Promise(executor) {
-	//this context is promise
+	if (typeof executor !== 'function') {
+		throw new TypeError('executor or function is not defined');
+	}
 	this._state = 'pending';
 	this._value;
+	this._handlerGroups = [];
 
-	this._handlerGroups = []
+	this.then = (successCb, errorCb) => {
+		if (typeof successCb !== 'function') {
+			successCb = null;
+		}
+		if (typeof errorCb !== 'function') {
+			errorCb = null;
+		}
+		this._handlerGroups.push({
+			successCb: successCb,
+			errorCb: errorCb
+		});
+		this._callHandlers();
+	};
+
 	this._internalResolve = function(value) {
 		if (!this._value && this._state === 'pending') {
 			this._value = value;
@@ -23,10 +39,6 @@ function $Promise(executor) {
 		}
 	};
 
-	if (typeof executor !== 'function') {
-		throw new TypeError('executor or function is not defined');
-	}
-
 	executor(
 		resolve => {
 			this._internalResolve(resolve);
@@ -35,35 +47,21 @@ function $Promise(executor) {
 			this._internalReject(reject);
 		}
 	);
-
-	this.then = (successCb, errorCb)=>{
-		if (typeof successCb !== 'function'){
-			successCb = null;
-		}
-		if (typeof errorCb !== 'function'){
-			errorCb = null;
-		}
-		this._handlerGroups.push({
-			successCb: successCb,
-			errorCb: errorCb
-		});
-		this._callHandlers()
-		// console.log('5: ', this._handleGroups[0])
-		// console.log(this._handleGroups[0].errorCb);
-	};
 }
 
-$Promise.prototype._callHandlers = ()=>{
-	if(this._state === 'fulfilled'){
-		let current = this._handlerGroups.shift()
-		current.successCb()
-	}
-	if(this._state === 'rejected'){
-		let current = this._handlerGroups.shift()
-		current.errorCb()
-	}
-}
-
+$Promise.prototype._callHandlers = function() {
+	this._handlerGroups.forEach((obj, index) => {
+		if (obj) {
+			if (this._state === 'fulfilled') {
+				obj.successCb(this._value);
+				this._handlerGroups.splice(index, 1);
+			} else if (this._state === 'rejected') {
+				obj.errorCb(this._value);
+				this._handlerGroups.splice(index, 1);
+			}
+		}
+	});
+};
 
 /*-------------------------------------------------------
 The spec was designed to work with Test'Em, so we don't
